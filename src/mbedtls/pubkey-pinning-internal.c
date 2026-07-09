@@ -1,6 +1,6 @@
 /**
  *
- * /brief internal functions for dealing with pubkey pinsets
+ * /brief functions for dealing with pubkey pinsets
  *
  */
 
@@ -31,10 +31,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PUBKEY_PINNING_INTERNAL_H_
-#define PUBKEY_PINNING_INTERNAL_H_
+#include "context.h"
+#include <mbedtls/base64.h>
 
-getdns_return_t _getdns_decode_base64(const char* str, uint8_t* res, size_t res_size);
+#include "types-internal.h"
 
-#endif
-/* pubkey-pinning-internal.h */
+#include "pubkey-pinning.h"
+
+/**
+ ** Interfaces from pubkey-pinning.h
+ **/
+
+getdns_return_t
+_getdns_decode_base64(const char *str, uint8_t *res, size_t res_size)
+{
+	size_t olen = 0;
+
+	if (mbedtls_base64_decode(res, res_size, &olen,
+		(const unsigned char *) str, strlen(str)) != 0)
+		return GETDNS_RETURN_GENERIC_ERROR;
+	return (olen == res_size)
+	    ? GETDNS_RETURN_GOOD : GETDNS_RETURN_GENERIC_ERROR;
+}
